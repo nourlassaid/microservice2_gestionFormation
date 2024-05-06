@@ -4,6 +4,7 @@ pipeline {
     environment {
         NODEJS_HOME = tool name: 'NodeJS', type: 'jenkins.plugins.nodejs.tools.NodeJSInstallation'
         PATH = "${env.NODEJS_HOME}/bin:${env.PATH}"
+        CHROME_BIN = '/usr/bin/google-chrome' // Path to Chrome binary
         DOCKER_HUB_REGISTRY = 'docker.io' // Docker Hub registry URL
     }
 
@@ -15,33 +16,54 @@ pipeline {
         }
 
         stage('Install dependencies') {
+          steps {
+    sh '${NODEJS_HOME}/bin/npm install'
+    // sh '${NODEJS_HOME}/bin/npm install jest --save-dev'
+    // sh '${NODEJS_HOME}/bin/npm install bcrypt'
+}
+            }
+        
+
+        stage('Fix Permissions') {
             steps {
-                sh '${NODEJS_HOME}/bin/npm install'
+                // Fix permissions for the project directory and node_modules
+                sh 'chmod -R 777 .'
             }
         }
+
 
         stage('Build') {
             steps {
-                // Si nécessaire, effectuez des étapes de build ici
+                // sh 'node app.js'
+                sh 'npm run build'
             }
         }
+
+        // stage('Test') {
+        //     steps {
+        //         // Run Jest tests
+        //         sh 'npm test'
+        //     }
+        // }
 
         stage('Build Docker image') {
             steps {
-                sh 'docker build -t micr_o2:latest .'
+                sh 'docker build -t micr_o2:latest -f Dockerfile .'
+                // Tag the Docker image with a version
+                sh 'docker tag micr_o2:latest nour0/micr_o2:latest'
             }
         }
 
-        stage('Push Docker image') {
+        stage('Deploy Docker image') {
             steps {
                 script {
-                    // Authentification auprès du registre Docker Hub
-                    withCredentials([usernamePassword(credentialsId: 'docker-hub-credentials', passwordVariable: 'DOCKER_PASSWORD', usernameVariable: 'DOCKER_USERNAME')]) {
-                        sh "docker login -u ${nour0} -p ${52840550abc} ${DOCKER_HUB_REGISTRY}"
+                    // Push Docker image to Docker Hub
+                    withCredentials([string(credentialsId: 'token', variable: 'DOCKER_TOKEN')]) {
+                        docker.withRegistry('https://index.docker.io/v1/', '12') {
+                            // Push both the latest and tagged images
+                            docker.image('nour0/micr_o2:latest').push('latest')
+                        }
                     }
-                    
-                    // Poussez l'image Docker vers Docker Hub
-                    sh 'docker push micr_o2:latest'
                 }
             }
         }
@@ -50,12 +72,12 @@ pipeline {
     post {
         success {
             echo 'Build succeeded!'
-            // Ajoutez ici toutes les actions post-build en cas de succès
+            // Add any success post-build actions here
         }
 
         failure {
             echo 'Build failed!'
-            // Ajoutez ici toutes les actions post-build en cas d'échec
+            // Add any failure post-build actions here
         }
     }
 }
