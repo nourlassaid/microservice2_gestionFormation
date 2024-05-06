@@ -28,7 +28,7 @@ pipeline {
 
         stage('Build Docker image') {
             steps {
-                sh 'docker build -t microservice-gestion-formations:latest .'
+                sh 'docker build -t micr_o2:latest .'
             }
         }
 
@@ -37,11 +37,11 @@ pipeline {
                 script {
                     // Authentification auprès du registre Docker Hub
                     withCredentials([usernamePassword(credentialsId: 'docker-hub-credentials', passwordVariable: 'DOCKER_PASSWORD', usernameVariable: 'DOCKER_USERNAME')]) {
-                        sh "docker login -u ${DOCKER_USERNAME} -p ${DOCKER_PASSWORD} ${DOCKER_HUB_REGISTRY}"
+                        sh "docker login -u ${nour0} -p ${52840550abc} ${DOCKER_HUB_REGISTRY}"
                     }
                     
                     // Poussez l'image Docker vers Docker Hub
-                    sh 'docker push microservice-gestion-formations:latest'
+                    sh 'docker push micr_o2:latest'
                 }
             }
         }
