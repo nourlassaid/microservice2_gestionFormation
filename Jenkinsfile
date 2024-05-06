@@ -2,10 +2,10 @@ pipeline {
     agent any
 
     environment {
-        NODEJS_HOME = tool name: 'NodeJS', type: 'jenkins.plugins.nodejs.tools.NodeJSInstallation'
+        NODEJS_HOME = tool name: 'NODEJS', type: 'jenkins.plugins.nodejs.tools.NodeJSInstallation'
         PATH = "${env.NODEJS_HOME}/bin:${env.PATH}"
-        CHROME_BIN = '/usr/bin/google-chrome' // Path to Chrome binary
-        DOCKER_HUB_REGISTRY = 'docker.io' // Docker Hub registry URL
+        CHROME_BIN = '/usr/bin/google-chrome' // Chemin vers le binaire Chrome
+        DOCKER_HUB_REGISTRY = 'docker.io' // URL du registre Docker Hub
     }
 
     stages {
@@ -16,21 +16,17 @@ pipeline {
         }
 
         stage('Install dependencies') {
-          steps {
-    sh '${NODEJS_HOME}/bin/npm install'
-    // sh '${NODEJS_HOME}/bin/npm install jest --save-dev'
-    // sh '${NODEJS_HOME}/bin/npm install bcrypt'
-}
-            }
-        
-
-        stage('Fix Permissions') {
             steps {
-                // Fix permissions for the project directory and node_modules
-                sh 'chmod -R 777 .'
+                sh '${NODEJS_HOME}/bin/npm install'
             }
         }
 
+        stage('Fix Permissions') {
+            steps {
+                // Fixer les permissions pour le répertoire du projet et les node_modules
+                sh 'chmod -R 777 .'
+            }
+        }
 
         stage('Build') {
             steps {
@@ -39,17 +35,10 @@ pipeline {
             }
         }
 
-        // stage('Test') {
-        //     steps {
-        //         // Run Jest tests
-        //         sh 'npm test'
-        //     }
-        // }
-
         stage('Build Docker image') {
             steps {
                 sh 'docker build -t micr_o2:latest -f Dockerfile .'
-                // Tag the Docker image with a version
+                // Taguer l'image Docker avec une version
                 sh 'docker tag micr_o2:latest nour0/micr_o2:latest'
             }
         }
@@ -57,10 +46,10 @@ pipeline {
         stage('Deploy Docker image') {
             steps {
                 script {
-                    // Push Docker image to Docker Hub
-                    withCredentials([string(credentialsId: 'token', variable: 'DOCKER_TOKEN')]) {
+                    // Pousser l'image Docker vers Docker Hub
+                    withCredentials([usernamePassword(credentialsId: 'nourlassaid-token', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
                         docker.withRegistry('https://index.docker.io/v1/', '12') {
-                            // Push both the latest and tagged images
+                            // Pousser à la fois les images latest et taggées
                             docker.image('nour0/micr_o2:latest').push('latest')
                         }
                     }
@@ -72,12 +61,12 @@ pipeline {
     post {
         success {
             echo 'Build succeeded!'
-            // Add any success post-build actions here
+            // Ajoutez ici toutes les actions post-build en cas de succès
         }
 
         failure {
             echo 'Build failed!'
-            // Add any failure post-build actions here
+            // Ajoutez ici toutes les actions post-build en cas d'échec
         }
     }
 }
