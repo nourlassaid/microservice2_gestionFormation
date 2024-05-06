@@ -9,9 +9,6 @@ RUN npm install
 
 COPY . .
 
-# Optionally, if your microservice requires any build step, perform it here
-# Example: RUN npm run build
-
 # Rebuild bcrypt module
 RUN npm rebuild bcrypt --build-from-source
 

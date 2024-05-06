@@ -1,52 +1,43 @@
 pipeline {
     agent any
-
+    
     environment {
-        NODEJS_HOME = tool name: 'NODEJS', type: 'jenkins.plugins.nodejs.tools.NodeJSInstallation'
-        PATH = "${env.NODEJS_HOME}/bin:${env.PATH}"
+        DOCKER_IMAGE = 'formation/micro'
     }
-
+    
     stages {
-        stage('Checkout') {
-            steps {
-                checkout scm
-            }
-        }
-
-        stage('Install dependencies') {
-            steps {
-                sh '${NODEJS_HOME}/bin/npm install'
-            }
-        }
-
-        stage('Build Docker image') {
+        stage('Build') {
             steps {
                 script {
-                    // Construire l'image Docker
-                    sh 'docker build -t micr_o2:latest -f Dockerfile .'
+                    // Étape de construction de l'image Docker
+                    docker.build DOCKER_IMAGE
                 }
             }
         }
-
-        stage('Deploy Docker image') {
+        
+        stage('Test') {
             steps {
+                // Ajoutez ici les étapes de test de votre application Node.js
+                // Par exemple : npm test
+            }
+        }
+        
+        stage('Deploy') {
+            steps {
+                // Étape de déploiement de l'image Docker
                 script {
-                    // Pousser l'image Docker vers Docker Hub ou un autre registre de conteneurs
-                    sh 'docker push micr_o2:latest'
+                    docker.withRegistry('https://registry.hub.docker.com', 'docker-hub-credentials') {
+                        docker.image(DOCKER_IMAGE).push('latest')
+                    }
                 }
             }
         }
     }
-
+    
     post {
-        success {
-            echo 'Build succeeded!'
-            // Ajouter ici toutes les actions post-build en cas de succès
-        }
-
-        failure {
-            echo 'Build failed!'
-            // Ajouter ici toutes les actions post-build en cas d'échec
+        always {
+            // Nettoyage des ressources après l'exécution du pipeline
+            cleanWs()
         }
     }
 }
