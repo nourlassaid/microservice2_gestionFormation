@@ -21,29 +21,29 @@ pipeline {
             }
         }
 
-        stage('Fix Permissions') {
+        /*stage('Fix Permissions') {
             steps {
                 // Fixer les permissions pour le répertoire du projet et les node_modules
                 sh 'chmod -R 777 .'
             }
-        }
+        }*/
 
-        stage('Build') {
+        /*stage('Build') {
             steps {
                 // sh 'node app.js'
                 sh 'npm run build'
             }
-        }
+        }*/
 
-        stage('Build Docker image') {
+        /*stage('Build Docker image') {
             steps {
                 sh 'docker build -t micr_o2:latest -f Dockerfile .'
                 // Taguer l'image Docker avec une version
                 sh 'docker tag micr_o2:latest nour0/micr_o2:latest'
             }
-        }
+        }*/
 
-        stage('Deploy Docker image') {
+        /*stage('Deploy Docker image') {
             steps {
                 script {
                     // Pousser l'image Docker vers Docker Hub
@@ -55,7 +55,7 @@ pipeline {
                     }
                 }
             }
-        }
+        }*/
     }
 
     post {
