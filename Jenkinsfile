@@ -1,43 +1,81 @@
 pipeline {
     agent any
-    
+
     environment {
-        DOCKER_IMAGE = 'formation/micro'
+        NODEJS_HOME = tool name: 'NodeJS', type: 'jenkins.plugins.nodejs.tools.NodeJSInstallation'
+        PATH = "${env.NODEJS_HOME}/bin:${env.PATH}"
+        CHROME_BIN = '/usr/bin/google-chrome' // Path to Chrome binary
+        DOCKER_HUB_REGISTRY = 'docker.io' // Docker Hub registry URL
     }
-    
+
     stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Install dependencies') {
+            steps {
+                sh '${NODEJS_HOME}/bin/npm install'
+                // sh '${NODEJS_HOME}/bin/npm install jest --save-dev'
+                // sh '${NODEJS_HOME}/bin/npm install bcrypt'
+            }
+        }
+
+        stage('Fix Permissions') {
+            steps {
+                // Fix permissions for the project directory and node_modules
+                sh 'chmod -R 777 .'
+            }
+        }
+
         stage('Build') {
             steps {
-                script {
-                    // Étape de construction de l'image Docker
-                    docker.build DOCKER_IMAGE
-                }
+                // sh 'node app.js'
+                sh 'npm run build'
             }
         }
-        
-        stage('Test') {
+
+        // stage('Test') {
+        //     steps {
+        //         // Run Jest tests
+        //         sh 'npm test'
+        //     }
+        // }
+
+        stage('Build Docker image') {
             steps {
-                // Ajoutez ici les étapes de test de votre application Node.js
-                // Par exemple : npm test
+                sh 'docker build -t microservice_images_formarion:latest -f Dockerfile .'
+                // Tag the Docker image with a version
+                sh 'docker tag microservice_images_formarion:latest nour0/microservice_images_formarion:latest'
             }
         }
-        
-        stage('Deploy') {
+
+        stage('Deploy Docker image') {
             steps {
-                // Étape de déploiement de l'image Docker
                 script {
-                    docker.withRegistry('https://registry.hub.docker.com', 'docker-hub-credentials') {
-                        docker.image(DOCKER_IMAGE).push('latest')
+                    // Push Docker image to Docker Hub
+                    withCredentials([string(credentialsId: 'token', variable: 'DOCKER_TOKEN')]) {
+                        docker.withRegistry('https://index.docker.io/v1/', '12') {
+                            // Push both the latest and tagged images
+                            docker.image('nour0/microservice_images_formarion:latest').push('latest')
+                        }
                     }
                 }
             }
         }
     }
-    
+
     post {
-        always {
-            // Nettoyage des ressources après l'exécution du pipeline
-            cleanWs()
+        success {
+            echo 'Build succeeded!'
+            // Add any success post-build actions here
+        }
+
+        failure {
+            echo 'Build failed!'
+            // Add any failure post-build actions here
         }
     }
 }

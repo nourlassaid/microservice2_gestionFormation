@@ -1,32 +1,19 @@
-# Stage 1: Build Node.js app
-FROM node:latest as node
+# Utilisez l'image officielle de Node.js
+FROM node:latest
+# Définir le répertoire de travail dans le conteneur
+WORKDIR /app
 
-WORKDIR /usr/src/app
-
+# Copier les fichiers de package et package-lock
 COPY package*.json ./
 
+# Installer les dépendances
 RUN npm install
 
+# Copier le reste des fichiers de l'application
 COPY . .
 
-# Rebuild bcrypt module
-RUN npm rebuild bcrypt --build-from-source
+# Exposer le port de l'application
+EXPOSE 3999
 
-# Stage 2: Final image with only Node.js runtime
-FROM node:latest as final
-
-WORKDIR /usr/src/app
-
-COPY --from=node /usr/src/app .
-
-# Expose port 3000 for Node.js application
-EXPOSE 3000
-
-# Set environment variables for MySQL connection
-ENV MYSQL_HOST=localhost
-ENV MYSQL_USER=root
-ENV MYSQL_PASSWORD=0000
-ENV MYSQL_DATABASE=formation_management
-
-# Start the Node.js application
+# Démarrer l'application
 CMD ["node", "app.js"]

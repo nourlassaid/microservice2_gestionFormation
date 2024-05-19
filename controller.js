@@ -1,7 +1,8 @@
+//controller.js
 const db = require('./db');
 
 // Récupérer toutes les formations
-const getFormations = (req, res) => {
+exports.getFormations = (req, res) => {
   db.query('SELECT * FROM formations', (err, rows) => {
     if (err) {
       console.error('Erreur lors de l\'exécution de la requête : ' + err.stack);
@@ -13,7 +14,7 @@ const getFormations = (req, res) => {
 };
 
 // Récupérer une formation par son ID
-const getFormationById = (req, res) => {
+exports.getFormationById = (req, res) => {
   const id = req.params.id;
   db.query('SELECT * FROM formations WHERE id = ?', [id], (err, rows) => {
     if (err) {
@@ -30,7 +31,7 @@ const getFormationById = (req, res) => {
 };
 
 // Ajouter une nouvelle formation
-const addFormation = (req, res) => {
+exports.addFormation = (req, res) => {
   const { nom, description, date_debut, date_fin, lieu } = req.body;
   const sql = 'INSERT INTO formations (nom, description, date_debut, date_fin, lieu) VALUES (?, ?, ?, ?, ?)';
   db.query(sql, [nom, description, date_debut, date_fin, lieu], (err, result) => {
@@ -44,7 +45,7 @@ const addFormation = (req, res) => {
 };
 
 // Mettre à jour une formation
-const updateFormation = (req, res) => {
+exports.updateFormation = (req, res) => {
   const id = req.params.id;
   const { nom, description, date_debut, date_fin, lieu } = req.body;
   const sql = 'UPDATE formations SET nom = ?, description = ?, date_debut = ?, date_fin = ?, lieu = ? WHERE id = ?';
@@ -59,7 +60,7 @@ const updateFormation = (req, res) => {
 };
 
 // Supprimer une formation
-const deleteFormation = (req, res) => {
+exports.deleteFormation = (req, res) => {
   const id = req.params.id;
   db.query('DELETE FROM formations WHERE id = ?', [id], (err, result) => {
     if (err) {
@@ -69,12 +70,4 @@ const deleteFormation = (req, res) => {
     }
     res.json({ message: 'Formation supprimée avec succès.', id: id });
   });
-};
-
-module.exports = {
-  getFormations,
-  getFormationById,
-  addFormation,
-  updateFormation,
-  deleteFormation
 };
