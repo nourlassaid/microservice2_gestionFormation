@@ -3,8 +3,8 @@ pipeline {
 
     environment {
         NODEJS_HOME = tool name: 'NodeJS', type: 'jenkins.plugins.nodejs.tools.NodeJSInstallation'
-        PATH = "${env.NODEJS_HOME}/bin:${env.PATH}"
-        CHROME_BIN = '/usr/bin/google-chrome' // Path to Chrome binary
+        PATH = "${env.NODEJS_HOME}\\bin;${env.PATH}"
+        CHROME_BIN = 'C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe' // Windows path to Chrome binary
         DOCKER_HUB_REGISTRY = 'docker.io' // Docker Hub registry URL
     }
 
@@ -17,37 +17,28 @@ pipeline {
 
         stage('Install dependencies') {
             steps {
-                sh 'npm install'
-                // sh 'npm install jest --save-dev'
-                // sh 'npm install bcrypt'
+                bat 'npm install'
             }
         }
 
         stage('Fix Permissions') {
             steps {
-                // Fix permissions for the project directory and node_modules
-                sh 'chmod -R 777 .'
+                // Fix permissions for the project directory and node_modules (Windows specific command)
+                bat 'icacls . /grant Everyone:(F) /T'
             }
         }
 
         stage('Build') {
             steps {
-                sh 'npm run build'
+                bat 'npm run build'
             }
         }
 
-        // stage('Test') {
-        //     steps {
-        //         // Run Jest tests
-        //         sh 'npm test'
-        //     }
-        // }
-
         stage('Build Docker image') {
             steps {
-                sh 'docker build -t micro3_formations-app:latest -f Dockerfile .'
+                bat 'docker build -t micro3_formations-app:latest -f Dockerfile .'
                 // Tag the Docker image with a version
-                sh 'docker tagmicro3_formations-app:latest nour0micro3_formations-app:latest'
+                bat 'docker tag micro3_formations-app:latest nour0/micro3_formations-app:latest'
             }
         }
 
