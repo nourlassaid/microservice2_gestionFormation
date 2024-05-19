@@ -17,9 +17,9 @@ pipeline {
 
         stage('Install dependencies') {
             steps {
-                sh '${NODEJS_HOME}/bin/npm install'
-                // sh '${NODEJS_HOME}/bin/npm install jest --save-dev'
-                // sh '${NODEJS_HOME}/bin/npm install bcrypt'
+                sh 'npm install'
+                // sh 'npm install jest --save-dev'
+                // sh 'npm install bcrypt'
             }
         }
 
@@ -32,7 +32,6 @@ pipeline {
 
         stage('Build') {
             steps {
-                // sh 'node app.js'
                 sh 'npm run build'
             }
         }
@@ -46,9 +45,9 @@ pipeline {
 
         stage('Build Docker image') {
             steps {
-                sh 'docker build -t microservice_images_formarion:latest -f Dockerfile .'
+                sh 'docker build -t micro3_formations-app:latest -f Dockerfile .'
                 // Tag the Docker image with a version
-                sh 'docker tag microservice_images_formarion:latest nour0/microservice_images_formarion:latest'
+                sh 'docker tagmicro3_formations-app:latest nour0micro3_formations-app:latest'
             }
         }
 
@@ -59,7 +58,7 @@ pipeline {
                     withCredentials([string(credentialsId: 'token', variable: 'DOCKER_TOKEN')]) {
                         docker.withRegistry('https://index.docker.io/v1/', '12') {
                             // Push both the latest and tagged images
-                            docker.image('nour0/microservice_images_formarion:latest').push('latest')
+                            docker.image('nour0/micro3_formations-app:latest').push('latest')
                         }
                     }
                 }
