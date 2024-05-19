@@ -4,7 +4,6 @@ pipeline {
     environment {
         NODEJS_HOME = tool name: 'NodeJS', type: 'jenkins.plugins.nodejs.tools.NodeJSInstallation'
         PATH = "${env.NODEJS_HOME}\\bin;${env.PATH}"
-        CHROME_BIN = 'C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe' // Windows path to Chrome binary
         DOCKER_HUB_REGISTRY = 'docker.io' // Docker Hub registry URL
     }
 
@@ -36,9 +35,15 @@ pipeline {
 
         stage('Build Docker image') {
             steps {
-                bat 'docker build -t micro3_formations-app:latest -f Dockerfile .'
-                // Tag the Docker image with a version
-                bat 'docker tag micro3_formations-app:latest nour0/micro3_formations-app:latest'
+                script {
+                    // Change directory to the location of the Dockerfile
+                    dir('path/to/dockerfile') {
+                        // Build Docker image
+                        bat 'docker build -t micro3_formations-app:latest .'
+                        // Tag the Docker image with a version
+                        bat 'docker tag micro3_formations-app:latest nour0/micro3_formations-app:latest'
+                    }
+                }
             }
         }
 
@@ -46,8 +51,8 @@ pipeline {
             steps {
                 script {
                     // Push Docker image to Docker Hub
-                    withCredentials([string(credentialsId: 'token', variable: 'DOCKER_TOKEN')]) {
-                        docker.withRegistry('https://index.docker.io/v1/', '12') {
+                    withCredentials([string(credentialsId: 'docker_hub_credentials', variable: 'DOCKER_TOKEN')]) {
+                        docker.withRegistry('https://index.docker.io/v1/', 'docker_hub_credentials') {
                             // Push both the latest and tagged images
                             docker.image('nour0/micro3_formations-app:latest').push('latest')
                         }
