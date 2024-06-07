@@ -30,7 +30,7 @@ pipeline {
 
         stage('SonarQube Analysis') {
             steps {
-                withSonarQubeEnv('SonarQube Test') {
+                withSonarQubeEnv('SonarQube Server Name') { // Make sure this name matches the configured SonarQube server in Jenkins
                     bat 'npm run sonarqube'
                 }
             }
