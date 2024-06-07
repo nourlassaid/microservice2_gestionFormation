@@ -1,11 +1,12 @@
-# Utiliser une image officielle MySQL comme image de base
-FROM mysql:5.7
+# Use the official MySQL image from the Docker Hub
+FROM mysql:8.0.36
 
-# Définir les variables d'environnement pour la configuration de MySQL
-ENV MYSQL_ROOT_PASSWORD=0000
+# Set environment variables for MySQL
+ENV MYSQL_ROOT_PASSWORD=rootpassword
 ENV MYSQL_DATABASE=formation_management
-ENV MYSQL_USER=root
-ENV MYSQL_PASSWORD=0000
 
-# Copier les scripts de base de données dans le conteneur
-COPY ./scripts /docker-entrypoint-initdb.d/
+# Copy the SQL dump file to the Docker container
+COPY init.sql /docker-entrypoint-initdb.d/
+
+# Expose the default MySQL port
+EXPOSE 3305

@@ -3,8 +3,9 @@ pipeline {
 
     environment {
         NODEJS_HOME = tool name: 'NodeJS', type: 'jenkins.plugins.nodejs.tools.NodeJSInstallation'
-        PATH = "${env.NODEJS_HOME}\\bin;${env.PATH}"
-        DOCKER_HUB_REGISTRY = 'docker.io' // Docker Hub registry URL
+        PATH = "${env.NODEJS_HOME}/bin:${env.PATH}"
+        CHROME_BIN = '/usr/bin/google-chrome'
+        DOCKER_HUB_REGISTRY = 'docker.io'
     }
 
     stages {
@@ -16,14 +17,10 @@ pipeline {
 
         stage('Install dependencies') {
             steps {
-                bat 'npm install'
-            }
-        }
-
-        stage('Fix Permissions') {
-            steps {
-                // Fix permissions for the project directory and node_modules (Windows specific command)
-                bat 'icacls . /grant Everyone:(F) /T'
+                script {
+                    bat 'npm install'
+                    bat 'npm install node-pre-gyp'
+                }
             }
         }
 
@@ -33,16 +30,21 @@ pipeline {
             }
         }
 
+        stage('SonarQube Analysis') {
+            steps {
+                script {
+                    withSonarQubeEnv('SonarQube Test') {
+                        bat 'npm run sonarqube'
+                    }
+                }
+            }
+        }
+
         stage('Build Docker image') {
             steps {
                 script {
-                    // Change directory to the location of the Dockerfile
-                    dir('path/to/dockerfile') {
-                        // Build Docker image
-                        bat 'docker build -t micro3_formations-app:latest .'
-                        // Tag the Docker image with a version
-                        bat 'docker tag micro3_formations-app:latest nour0/micro3_formations-app:latest'
-                    }
+                    bat 'docker build --no-cache -t micro3_formations-app:latest -f Dockerfile .'
+                    bat 'docker tag micro3_formations-app:latest nour0/micro3_formations-app:latest'
                 }
             }
         }
@@ -50,13 +52,18 @@ pipeline {
         stage('Deploy Docker image') {
             steps {
                 script {
-                    // Push Docker image to Docker Hub
-                    withCredentials([string(credentialsId: 'docker_hub_credentials', variable: 'DOCKER_TOKEN')]) {
-                        docker.withRegistry('https://index.docker.io/v1/', 'docker_hub_credentials') {
-                            // Push both the latest and tagged images
-                            docker.image('nour0/micro3_formations-app:latest').push('latest')
+                    withCredentials([string(credentialsId: 'docker-hub-token', variable: 'DOCKER_TOKEN')]) {
+                        docker.withRegistry('https://index.docker.io/v1/', '12') {
+                            bat "docker image push nour0/micro3_formations-app:latest"
                         }
                     }
+                }
+            }
+        }
+        stage('kubernetes Deployment') {
+            steps {
+                script {
+                   bat 'kubectl apply -f formation-deployment.yaml' 
                 }
             }
         }
@@ -65,12 +72,10 @@ pipeline {
     post {
         success {
             echo 'Build succeeded!'
-            // Add any success post-build actions here
         }
 
         failure {
             echo 'Build failed!'
-            // Add any failure post-build actions here
         }
     }
 }

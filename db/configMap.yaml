@@ -1,0 +1,172 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mysql-configmap
+  namespace: formation
+
+data:
+  formation_management.sql: |
+    -- phpMyAdmin SQL Dump
+    -- version 5.2.1
+    -- https://www.phpmyadmin.net/
+    --
+    -- Hôte : 127.0.0.1
+    -- Généré le : mer. 22 mai 2024 à 11:07
+    -- Version du serveur : 8.0.36
+    -- Version de PHP : 8.0.30
+
+    SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
+    START TRANSACTION;
+    SET time_zone = "+00:00";
+
+    --
+    -- Base de données : `formation_management`
+    --
+
+    -- --------------------------------------------------------
+    --
+    -- Structure de la table `formations`
+    --
+
+    CREATE TABLE `formations` (
+      `id` int NOT NULL,
+      `nom` varchar(255) DEFAULT NULL,
+      `description` text,
+      `date_debut` date DEFAULT NULL,
+      `date_fin` date DEFAULT NULL,
+      `lieu` varchar(255) DEFAULT NULL
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+    --
+    -- Déchargement des données de la table `formations`
+    --
+
+    INSERT INTO `formations` (`id`, `nom`, `description`, `date_debut`, `date_fin`, `lieu`) VALUES
+      (9, 'Formation 4', 'Description de la formation 4', '2024-06-01', '2024-06-15', '4C ISET Tozeur'),
+      (10, 'Formation 5', 'Description de la formation 5', '2024-07-01', '2024-07-15', '4C ISET Tozeur'),
+      (11, 'Formation 1', 'Description de la formation 1', '2024-03-01', '2024-03-15', '4C ISET Tozeur'),
+      (12, 'Formation 2', 'Description de la formation 2', '2024-04-01', '2024-04-15', '4C ISET Tozeur'),
+      (13, 'Formation 3', 'Description de la formation 3', '2024-05-01', '2024-05-15', '4C ISET Tozeur'),
+      (14, 'Formation 4', 'Description de la formation 4', '2024-06-01', '2024-06-15', '4C ISET Tozeur'),
+      (15, 'Formation 5', 'Description de la formation 5', '2024-07-01', '2024-07-15', '4C ISET Tozeur'),
+      (18, 'Formation 1', 'Description de la formation 1', '2024-03-01', '2024-03-15', '4C ISET Tozeur'),
+      (19, 'Formation 2', 'Description de la formation 2', '2024-04-01', '2024-04-15', '4C ISET Tozeur'),
+      (20, 'Formation 3', 'Description de la formation 3', '2024-05-01', '2024-05-15', '4C ISET Tozeur'),
+      (21, 'Formation 4', 'Description de la formation 4', '2024-06-01', '2024-06-15', '4C ISET Tozeur'),
+      (22, 'Formation 5', 'Description de la formation 5', '2024-07-01', '2024-07-15', '4C ISET Tozeur'),
+      (23, 'Formation 1', 'Description de la formation 1', '2024-03-01', '2024-03-15', '4C ISET Tozeur'),
+      (24, 'Formation 2', 'Description de la formation 2', '2024-04-01', '2024-04-15', '4C ISET Tozeur'),
+      (25, 'Formation 3', 'Description de la formation 3', '2024-05-01', '2024-05-15', '4C ISET Tozeur'),
+      (26, 'Formation 4', 'Description de la formation 4', '2024-06-01', '2024-06-15', '4C ISET Tozeur'),
+      (28, 'Formation 1', 'Description de la formation 1', '2024-03-01', '2024-03-15', '4C ISET Tozeur'),
+      (35, 'Formation en développement web', 'Formation complète sur les technologies web modernes', '2024-05-01', '2024-06-30', 'En ligne'),
+      (38, 'react', 'formation 1', '2024-04-03', '2024-04-19', 'tozeur'),
+      (39, 'scrum', NULL, '2024-04-19', '2024-05-11', 'tozeur'),
+      (40, 'scrum2', 'formation 1', NULL, NULL, 'tozeur'),
+      (42, 'cisco3', 'dd', '2024-05-29', '2024-06-09', 'tozeur'),
+      (43, 'New Formation', 'Description', '2024-01-01', '2024-01-31', 'Paris'),
+      (44, NULL, 'Description de l\'événement', NULL, NULL, NULL),
+      (45, NULL, 'Description de l\'événement', NULL, NULL, NULL);
+
+    --
+    -- Index pour les tables déchargées
+    --
+
+    --
+    -- Index pour la table `formations`
+    --
+    ALTER TABLE `formations`
+      ADD PRIMARY KEY (`id`);
+
+    --
+    -- AUTO_INCREMENT pour les tables déchargées
+    --
+
+    --
+    -- AUTO_INCREMENT pour la table `formations`
+    --
+    ALTER TABLE `formations`
+      MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=46;
+
+  formation_management_test.sql: |
+    -- phpMyAdmin SQL Dump
+    -- version 5.2.1
+    -- https://www.phpmyadmin.net/
+    --
+    -- Hôte : 127.0.0.1
+    -- Généré le : mer. 22 mai 2024 à 11:07
+    -- Version du serveur : 8.0.36
+    -- Version de PHP : 8.0.30
+
+    SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
+    START TRANSACTION;
+    SET time_zone = "+00:00";
+
+    --
+    -- Base de données : `formation_management`
+    --
+
+    -- --------------------------------------------------------
+    --
+    -- Structure de la table `formations`
+    --
+
+    CREATE TABLE `formations` (
+      `id` int NOT NULL,
+      `nom` varchar(255) DEFAULT NULL,
+      `description` text,
+      `date_debut` date DEFAULT NULL,
+      `date_fin` date DEFAULT NULL,
+      `lieu` varchar(255) DEFAULT NULL
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+    --
+    -- Déchargement des données de la table `formations`
+    --
+
+    INSERT INTO `formations` (`id`, `nom`, `description`, `date_debut`, `date_fin`, `lieu`) VALUES
+      (9, 'Formation 4', 'Description de la formation 4', '2024-06-01', '2024-06-15', '4C ISET Tozeur'),
+      (10, 'Formation 5', 'Description de la formation 5', '2024-07-01', '2024-07-15', '4C ISET Tozeur'),
+      (11, 'Formation 1', 'Description de la formation 1', '2024-03-01', '2024-03-15', '4C ISET Tozeur'),
+      (12, 'Formation 2', 'Description de la formation 2', '2024-04-01', '2024-04-15', '4C ISET Tozeur'),
+      (13, 'Formation 3', 'Description de la formation 3', '2024-05-01', '2024-05-15', '4C ISET Tozeur'),
+      (14, 'Formation 4', 'Description de la formation 4', '2024-06-01', '2024-06-15', '4C ISET Tozeur'),
+      (15, 'Formation 5', 'Description de la formation 5', '2024-07-01', '2024-07-15', '4C ISET Tozeur'),
+      (18, 'Formation 1', 'Description de la formation 1', '2024-03-01', '2024-03-15', '4C ISET Tozeur'),
+      (19, 'Formation 2', 'Description de la formation 2', '2024-04-01', '2024-04-15', '4C ISET Tozeur'),
+      (20, 'Formation 3', 'Description de la formation 3', '2024-05-01', '2024-05-15', '4C ISET Tozeur'),
+      (21, 'Formation 4', 'Description de la formation 4', '2024-06-01', '2024-06-15', '4C ISET Tozeur'),
+      (22, 'Formation 5', 'Description de la formation 5', '2024-07-01', '2024-07-15', '4C ISET Tozeur'),
+      (23, 'Formation 1', 'Description de la formation 1', '2024-03-01', '2024-03-15', '4C ISET Tozeur'),
+      (24, 'Formation 2', 'Description de la formation 2', '2024-04-01', '2024-04-15', '4C ISET Tozeur'),
+      (25, 'Formation 3', 'Description de la formation 3', '2024-05-01', '2024-05-15', '4C ISET Tozeur'),
+      (26, 'Formation 4', 'Description de la formation 4', '2024-06-01', '2024-06-15', '4C ISET Tozeur'),
+      (28, 'Formation 1', 'Description de la formation 1', '2024-03-01', '2024-03-15', '4C ISET Tozeur'),
+      (35, 'Formation en développement web', 'Formation complète sur les technologies web modernes', '2024-05-01', '2024-06-30', 'En ligne'),
+      (38, 'react', 'formation 1', '2024-04-03', '2024-04-19', 'tozeur'),
+      (39, 'scrum', NULL, '2024-04-19', '2024-05-11', 'tozeur'),
+      (40, 'scrum2', 'formation 1', NULL, NULL, 'tozeur'),
+      (42, 'cisco3', 'dd', '2024-05-29', '2024-06-09', 'tozeur'),
+      (43, 'New Formation', 'Description', '2024-01-01', '2024-01-31', 'Paris'),
+      (44, NULL, 'Description de l\'événement', NULL, NULL, NULL),
+      (45, NULL, 'Description de l\'événement', NULL, NULL, NULL);
+
+    --
+    -- Index pour les tables déchargées
+    --
+
+    --
+    -- Index pour la table `formations`
+    --
+    ALTER TABLE `formations`
+      ADD PRIMARY KEY (`id`);
+
+    --
+    -- AUTO_INCREMENT pour les tables déchargées
+    --
+
+    --
+    -- AUTO_INCREMENT pour la table `formations`
+    --
+    ALTER TABLE `formations`
+      MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=46;
