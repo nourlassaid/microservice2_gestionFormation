@@ -6,8 +6,9 @@
   "scripts": {
     "test": "jest",
     "start": "node app.js",
-    "test:e2e": "node test-endpoints.js" 
-    
+    "test:e2e": "node test-endpoints.js",
+    "build": "echo 'No build step required'"
+
   },
   "keywords": [],
   "author": "",
@@ -23,6 +24,9 @@
   "devDependencies": {
     "jest": "^29.7.0",
     "mysql2": "^3.9.7",
-    "sonar-scanner": "^3.1.0"
+    "sonar-scanner": "^3.1.0",
+    "typescript": "^5.4.5",
+    "webpack": "^5.91.0",
+    "webpack-cli": "^5.1.4"
   }
 }
