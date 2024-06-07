@@ -1,26 +1,31 @@
 pipeline {
     agent any
 
-    environment {
-        NODEJS_HOME = tool name: 'NodeJS 20', type: 'NodeJSInstallation'
-        PATH = "${NODEJS_HOME}/bin:${env.PATH}"
+     environment {
+        DOCKER_PATH = "C:\\Program Files\\Docker\\cli-plugins"
+        PATH = "${DOCKER_PATH};${PATH}"  // Utilisez ';' pour Windows
+        NODEJS_PATH = "C:\\Program Files\\nodejs"  // Path Node.js correct
     }
 
+
     stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
         stage('Install Dependencies') {
             steps {
                 script {
-                    // Clean workspace before starting
                     deleteDir()
+                    sh 'npm install'
                 }
-                // Install npm dependencies
-                sh 'npm install'
             }
         }
 
         stage('Build') {
             steps {
-                // Run the build script
                 sh 'npm run build'
             }
         }
@@ -29,13 +34,11 @@ pipeline {
             parallel {
                 stage('Unit Tests') {
                     steps {
-                        // Run unit tests
                         sh 'npm test'
                     }
                 }
                 stage('End-to-End Tests') {
                     steps {
-                        // Run end-to-end tests
                         sh 'npm run test:e2e'
                     }
                 }
@@ -44,7 +47,6 @@ pipeline {
 
         stage('Code Analysis') {
             steps {
-                // Run SonarQube scanner
                 withSonarQubeEnv('SonarQube') {
                     sh 'sonar-scanner'
                 }
@@ -54,10 +56,9 @@ pipeline {
 
     post {
         always {
-            // Archive test results
-            junit 'reports/**/*.xml'
-
-            // Clean up workspace after build
+            node {
+                junit 'reports/**/*.xml'
+            }
             cleanWs()
         }
     }
