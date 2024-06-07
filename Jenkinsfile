@@ -7,20 +7,23 @@ pipeline {
     }
 
     stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
         stage('Install Dependencies') {
             steps {
                 script {
-                    // Clean workspace before starting
                     deleteDir()
+                    sh 'npm install'
                 }
-                // Install npm dependencies
-                sh 'npm install'
             }
         }
 
         stage('Build') {
             steps {
-                // Run the build script
                 sh 'npm run build'
             }
         }
@@ -29,13 +32,11 @@ pipeline {
             parallel {
                 stage('Unit Tests') {
                     steps {
-                        // Run unit tests
                         sh 'npm test'
                     }
                 }
                 stage('End-to-End Tests') {
                     steps {
-                        // Run end-to-end tests
                         sh 'npm run test:e2e'
                     }
                 }
@@ -44,7 +45,6 @@ pipeline {
 
         stage('Code Analysis') {
             steps {
-                // Run SonarQube scanner
                 withSonarQubeEnv('SonarQube') {
                     sh 'sonar-scanner'
                 }
@@ -54,10 +54,9 @@ pipeline {
 
     post {
         always {
-            // Archive test results
-            junit 'reports/**/*.xml'
-
-            // Clean up workspace after build
+            node {
+                junit 'reports/**/*.xml'
+            }
             cleanWs()
         }
     }
