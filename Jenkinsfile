@@ -2,70 +2,63 @@ pipeline {
     agent any
 
     environment {
-        NODEJS_HOME = tool name: 'NodeJS', type: 'jenkins.plugins.nodejs.tools.NodeJSInstallation'
-        PATH = "${env.NODEJS_HOME}/bin:${env.PATH}"
-        CHROME_BIN = '/usr/bin/google-chrome'
-        DOCKER_HUB_REGISTRY = 'docker.io'
+        NODEJS_HOME = tool name: 'NodeJS 14', type: 'NodeJSInstallation'
+        PATH = "${NODEJS_HOME}/bin:${env.PATH}"
     }
 
     stages {
-        stage('Checkout') {
+        stage('Install Dependencies') {
             steps {
-                checkout scm
-            }
-        }
-
-        stage('Install dependencies') {
-            steps {
-                bat 'npm install'
-                bat 'npm install node-pre-gyp'
+                script {
+                    // Clean workspace before starting
+                    deleteDir()
+                }
+                // Install npm dependencies
+                sh 'npm install'
             }
         }
 
         stage('Build') {
             steps {
-                bat 'npm run build'
+                // Run the build script
+                sh 'npm run build'
             }
         }
 
-        stage('SonarQube Analysis') {
-            steps {
-                withSonarQubeEnv('SonarQube Server Name') { // Make sure this name matches the configured SonarQube server in Jenkins
-                    bat 'npm run sonarqube'
+        stage('Test') {
+            parallel {
+                stage('Unit Tests') {
+                    steps {
+                        // Run unit tests
+                        sh 'npm test'
+                    }
+                }
+                stage('End-to-End Tests') {
+                    steps {
+                        // Run end-to-end tests
+                        sh 'npm run test:e2e'
+                    }
                 }
             }
         }
 
-        stage('Build Docker image') {
+        stage('Code Analysis') {
             steps {
-                bat 'docker build --no-cache -t micro3_formations-app:latest -f Dockerfile .'
-                bat 'docker tag micro3_formations-app:latest nour0/micro3_formations-app:latest'
-            }
-        }
-
-        stage('Deploy Docker image') {
-            steps {
-                withCredentials([string(credentialsId: 'docker-hub-token', variable: 'DOCKER_TOKEN')]) {
-                    bat "docker login -u nour0 -p ${DOCKER_TOKEN} ${DOCKER_HUB_REGISTRY}"
-                    bat "docker push nour0/micro3_formations-app:latest"
+                // Run SonarQube scanner
+                withSonarQubeEnv('SonarQube') {
+                    sh 'sonar-scanner'
                 }
-            }
-        }
-
-        stage('Kubernetes Deployment') {
-            steps {
-                bat 'kubectl apply -f formation-deployment.yaml'
             }
         }
     }
 
     post {
-        success {
-            echo 'Build succeeded!'
-        }
+        always {
+            // Archive test results
+            junit 'reports/**/*.xml'
 
-        failure {
-            echo 'Build failed!'
+            // Clean up workspace after build
+            cleanWs()
         }
     }
 }
