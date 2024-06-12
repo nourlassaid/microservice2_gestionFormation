@@ -1,12 +1,11 @@
 pipeline {
     agent any
 
-     environment {
+  environment {
         DOCKER_PATH = "C:\\Program Files\\Docker\\cli-plugins"
         PATH = "${DOCKER_PATH};${PATH}"  // Utilisez ';' pour Windows
         NODEJS_PATH = "C:\\Program Files\\nodejs"  // Path Node.js correct
     }
-
 
     stages {
         stage('Checkout') {
@@ -45,13 +44,17 @@ pipeline {
             }
         }
 
-        stage('Code Analysis') {
+        stage('SonarQube Scan') {
             steps {
-                withSonarQubeEnv('SonarQube') {
-                    sh 'sonar-scanner'
+                script {
+                    def scannerHome = tool name: 'Sonar', type: 'hudson.plugins.sonar.SonarRunnerInstallation'
+                    withSonarQubeEnv('Sonar') {
+                        sh "${scannerHome}/bin/sonar-scanner -Dsonar.login=${SONAR_USER} -Dsonar.password=${SONAR_PASS}"
+                    }
                 }
             }
         }
+    }
     }
 
     post {
@@ -62,4 +65,4 @@ pipeline {
             cleanWs()
         }
     }
-}
+

@@ -70,4 +70,38 @@ exports.deleteFormation = (req, res) => {
     }
     res.json({ message: 'Formation supprimée avec succès.', id: id });
   });
+};// controller.js
+
+// controller.js
+
+
+// Rechercher des formations par terme de recherche
+exports.searchFormations = (req, res) => {
+  const searchTerm = req.query.q; // Le terme de recherche est passé en tant que paramètre de requête
+
+  // Vérifier si aucun terme de recherche n'a été fourni
+  if (!searchTerm) {
+    // Si aucun terme de recherche n'est fourni, renvoyer toutes les formations
+    db.query('SELECT * FROM formations', (err, rows) => {
+      if (err) {
+        console.error('Erreur lors de l\'exécution de la requête : ' + err.stack);
+        res.status(500).json({ message: 'Erreur lors de la récupération des formations.' });
+        return;
+      }
+      res.json(rows);
+    });
+  } else {
+    // Utiliser une requête SQL pour rechercher les formations par nom
+    const sql = 'SELECT * FROM formations WHERE nom LIKE ?'; // Recherche par le nom de la formation
+    const searchTermLike = `%${searchTerm}%`; // Ajouter des jokers pour rechercher les correspondances partielles
+
+    db.query(sql, [searchTermLike], (err, rows) => {
+      if (err) {
+        console.error('Erreur lors de l\'exécution de la requête : ' + err.stack);
+        res.status(500).json({ message: 'Erreur lors de la recherche des formations.' });
+        return;
+      }
+      res.json(rows);
+    });
+  }
 };

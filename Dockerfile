@@ -24,7 +24,7 @@ WORKDIR /usr/src/app
 COPY --from=build /usr/src/app .
 
 # Expose port 3099 for Node.js application
-EXPOSE 3099 
+EXPOSE 3100 
 
 # Start the Node.js application
 CMD ["node", "app.js"]

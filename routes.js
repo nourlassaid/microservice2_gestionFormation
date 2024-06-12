@@ -17,5 +17,6 @@ router.put('/formations/:id', controllers.updateFormation);
 
 // Route pour supprimer une formation par son ID
 router.delete('/formations/:id', controllers.deleteFormation);
+router.get('/formations/search', controllers.searchFormations);
 
 module.exports = router;

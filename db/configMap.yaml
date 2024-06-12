@@ -1,9 +1,8 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: mysql-configmap
+  name: mysql-configMap
   namespace: formation
-
 data:
   formation_management.sql: |
     -- phpMyAdmin SQL Dump

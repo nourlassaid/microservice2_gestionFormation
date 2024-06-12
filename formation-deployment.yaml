@@ -1,42 +1,29 @@
-version: '3.8'
-
-services:
-  formation-api:
-    build: .
-    ports:
-      - "3099:3099"
-    environment:
-      MYSQL_HOST: mysql
-      MYSQL_PORT: 3306
-      MYSQL_USER: root
-      MYSQL_PASSWORD: root
-      MYSQL_DATABASE: formation_management
-    networks:
-      - formation_network
-
-  mysql:
-    image: mysql:latest
-    ports:
-      - "3306:3306"
-    environment:
-      MYSQL_DATABASE: formation_management
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_PASSWORD: root
-    volumes:
-      - ./docker/init.sql:/docker-entrypoint-initdb.d/init.sql
-    networks:
-      - formation_network
-
-  phpmyadmin:
-    image: phpmyadmin/phpmyadmin:latest
-    ports:
-      - "8080:80"
-    environment:
-      PMA_HOST: mysql
-      MYSQL_ROOT_PASSWORD: root
-    networks:
-      - formation_network
-
-networks:
-  formation_network:
-    external: true
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend-deployment
+  namespace: formation
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: backend
+  template:
+    metadata:
+      labels:
+        app: backend
+    spec:
+      containers:
+      - name: backend
+        image: nour0/formationfrontend:latest
+        ports:
+        - containerPort: 8333
+        env:
+        - name: MYSQL_HOST
+          value: mysql
+        - name: MYSQL_USER
+          value: root
+        - name: MYSQL_PASSWORD
+          value: "0000"
+        - name: MYSQL_DATABASE
+          value: formation_management
