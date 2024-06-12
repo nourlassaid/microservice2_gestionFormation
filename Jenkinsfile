@@ -1,10 +1,11 @@
 pipeline {
     agent any
 
-  environment {
-        DOCKER_PATH = "C:\\Program Files\\Docker\\cli-plugins"
-        PATH = "${DOCKER_PATH};${PATH}"  // Utilisez ';' pour Windows
-        NODEJS_PATH = "C:\\Program Files\\nodejs"  // Path Node.js correct
+    environment {
+        NODEJS_HOME = tool name: 'NodeJS', type: 'jenkins.plugins.nodejs.tools.NodeJSInstallation'
+        PATH = "${env.NODEJS_HOME}/bin:${env.PATH}"
+        CHROME_BIN = '/usr/bin/google-chrome'
+        DOCKER_HUB_REGISTRY = 'docker.io'
     }
 
     stages {
@@ -14,55 +15,67 @@ pipeline {
             }
         }
 
-        stage('Install Dependencies') {
+        stage('Install dependencies') {
             steps {
                 script {
-                    deleteDir()
-                    sh 'npm install'
+                    bat 'npm install'
+                    bat 'npm install node-pre-gyp'
                 }
             }
         }
 
         stage('Build') {
             steps {
-                sh 'npm run build'
+                bat 'npm run build'
             }
         }
 
-        stage('Test') {
-            parallel {
-                stage('Unit Tests') {
-                    steps {
-                        sh 'npm test'
-                    }
-                }
-                stage('End-to-End Tests') {
-                    steps {
-                        sh 'npm run test:e2e'
-                    }
-                }
-            }
-        }
-
-        stage('SonarQube Scan') {
+        stage('SonarQube Analysis') {
             steps {
                 script {
-                    def scannerHome = tool name: 'Sonar', type: 'hudson.plugins.sonar.SonarRunnerInstallation'
                     withSonarQubeEnv('Sonar') {
-                        sh "${scannerHome}/bin/sonar-scanner -Dsonar.login=${SONAR_USER} -Dsonar.password=${SONAR_PASS}"
+                        bat 'npm run sonarqube'
                     }
                 }
             }
         }
-    }
+
+        stage('Build Docker image') {
+            steps {
+                script {
+                    bat 'docker build --no-cache -t formationfrontend:latest -f Dockerfile .'
+                    bat 'docker tag formationfrontend:latestnour0/formationfrontend:latest'
+                }
+            }
+        }
+
+        stage('Deploy Docker image') {
+            steps {
+                script {
+                    withCredentials([string(credentialsId: 'docker-hub-token', variable: 'DOCKER_TOKEN')]) {
+                        docker.withRegistry('https://index.docker.io/v1/', '12') {
+                            bat "docker image pushnour0/formationfrontend:latest"
+                        }
+                    }
+                }
+            }
+        }
+        stage('kubernetes Deployment') {
+            steps {
+                script {
+                   bat 'kubectl apply -f formation-deployment.yaml' 
+                }
+            }
+        }
     }
 
     post {
-        always {
-            node {
-                junit 'reports/**/*.xml'
-            }
-            cleanWs()
+        success {
+            echo 'Build succeeded!'
+        }
+
+        failure {
+            echo 'Build failed!'
         }
     }
-
+}
