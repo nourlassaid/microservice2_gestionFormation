@@ -32,12 +32,12 @@ pipeline {
 
         stage('Code Analysis') {
             steps {
-                withSonarQubeEnv('Sonar') {
-                    bat "${env.SONAR_SCANNER_HOME}/bin/sonar-scanner \
+                withSonarQubeEnv('SonarQubeScanner') {
+                    bat "${env.SONAR_SCANNER_HOME}/bin/sonar-scanner.bat \
                         -Dsonar.projectKey=gestion_formation \
                         -Dsonar.projectName=gestion_formation \
                         -Dsonar.projectVersion=1.0 \
-                        -Dsonar.sources=<project-path>"
+                        -Dsonar.sources=."
                 }
             }
         }
@@ -77,4 +77,8 @@ pipeline {
             echo 'Build succeeded!'
         }
 
-      
+        failure {
+            echo 'Build failed!'
+        }
+    }
+}
