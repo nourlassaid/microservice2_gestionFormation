@@ -4,8 +4,8 @@ pipeline {
     environment {
         NODEJS_HOME = tool name: 'NodeJS', type: 'jenkins.plugins.nodejs.tools.NodeJSInstallation'
         PATH = "${env.NODEJS_HOME}/bin:${env.PATH}"
+        CHROME_BIN = '/usr/bin/google-chrome'
         DOCKER_HUB_REGISTRY = 'docker.io'
-        SONAR_SCANNER_HOME = tool name: 'SonarQube Scanner', type: 'hudson.plugins.sonar.SonarRunnerInstallation'
     }
 
     stages {
@@ -30,14 +30,12 @@ pipeline {
             }
         }
 
-        stage('Code Analysis') {
+        stage('SonarQube Analysis') {
             steps {
-                withSonarQubeEnv('SonarQubeScanner') {
-                    bat "${env.SONAR_SCANNER_HOME}/bin/sonar-scanner.bat \
-                        -Dsonar.projectKey=gestion_formation \
-                        -Dsonar.projectName=gestion_formation \
-                        -Dsonar.projectVersion=1.0 \
-                        -Dsonar.sources=."
+                script {
+                    withSonarQubeEnv('Sonar') {
+                        bat 'npm run sonarqube'
+                    }
                 }
             }
         }
@@ -45,7 +43,7 @@ pipeline {
         stage('Build Docker image') {
             steps {
                 script {
-                    bat 'docker build --no-cache -t formationfrontend:latest -f Dockerfile .'
+                    bat 'docker build --no-cache -t feedback:latest -f Dockerfile .'
                     bat 'docker tag formationfrontend:latest nour0/formationfrontend:latest'
                 }
             }
@@ -55,18 +53,10 @@ pipeline {
             steps {
                 script {
                     withCredentials([string(credentialsId: 'docker-hub-token', variable: 'DOCKER_TOKEN')]) {
-                        docker.withRegistry('https://index.docker.io/v1/', 'docker') {
-                            bat "docker push nour0/formationfrontend:latest"
+                        docker.withRegistry('https://index.docker.io/v1/', '12') {
+                            bat "docker image push nour0/formationfrontend:latest"
                         }
                     }
-                }
-            }
-        }
-
-        stage('Kubernetes Deployment') {
-            steps {
-                script {
-                    bat 'kubectl apply -f formation-deployment.yaml'
                 }
             }
         }
