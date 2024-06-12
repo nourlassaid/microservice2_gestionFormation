@@ -5,6 +5,7 @@ pipeline {
         NODEJS_HOME = tool name: 'NodeJS', type: 'jenkins.plugins.nodejs.tools.NodeJSInstallation'
         PATH = "${env.NODEJS_HOME}/bin:${env.PATH}"
         DOCKER_HUB_REGISTRY = 'docker.io'
+        SONAR_SCANNER_HOME = tool name: 'SonarQube Scanner', type: 'hudson.plugins.sonar.SonarRunnerInstallation'
     }
 
     stages {
@@ -29,24 +30,17 @@ pipeline {
             }
         }
 
-    stage('Code Analysis') {
-            environment {
-                scannerHome = tool 'Sonar'
-            }
+        stage('Code Analysis') {
             steps {
-                script {
-                    withSonarQubeEnv('Sonar') {
-                        sh "${scannerHome}/bin/sonar-scanner \
-                            -Dsonar.projectKey=<project-key> \
-                            -Dsonar.projectName=<project-name> \
-                            -Dsonar.projectVersion=<project-version> \
-                            -Dsonar.sources=<project-path>"
-                    }
+                withSonarQubeEnv('Sonar') {
+                    bat "${env.SONAR_SCANNER_HOME}/bin/sonar-scanner \
+                        -Dsonar.projectKey=gestion_formation \
+                        -Dsonar.projectName=gestion_formation \
+                        -Dsonar.projectVersion=1.0 \
+                        -Dsonar.sources=<project-path>"
                 }
             }
         }
-    
-
 
         stage('Build Docker image') {
             steps {
@@ -83,8 +77,4 @@ pipeline {
             echo 'Build succeeded!'
         }
 
-        failure {
-            echo 'Build failed!'
-        }
-    }
-}
+      
