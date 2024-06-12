@@ -29,16 +29,24 @@ pipeline {
             }
         }
 
-        stage('SonarQube Analysis') {
+    stage('Code Analysis') {
+            environment {
+                scannerHome = tool 'Sonar'
+            }
             steps {
                 script {
-                    def scannerHome = tool name: 'SonarQube Scanner', type: 'hudson.plugins.sonar.SonarRunnerInstallation'
                     withSonarQubeEnv('Sonar') {
-                        bat "${scannerHome}/bin/sonar-scanner -Dsonar.login=${SONAR_USER} -Dsonar.password=${SONAR_PASS}"
+                        sh "${scannerHome}/bin/sonar-scanner \
+                            -Dsonar.projectKey=<project-key> \
+                            -Dsonar.projectName=<project-name> \
+                            -Dsonar.projectVersion=<project-version> \
+                            -Dsonar.sources=<project-path>"
                     }
                 }
             }
         }
+    
+
 
         stage('Build Docker image') {
             steps {
