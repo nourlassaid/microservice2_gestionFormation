@@ -2,73 +2,60 @@ pipeline {
     agent any
 
     environment {
-        NODEJS_HOME = tool name: 'NodeJS', type: 'jenkins.plugins.nodejs.tools.NodeJSInstallation'
-        PATH = "${env.NODEJS_HOME}/bin:${env.PATH}"
-        CHROME_BIN = '/usr/bin/google-chrome'
-        DOCKER_HUB_REGISTRY = 'docker.io'
+        DOCKER_PATH = "C:\\Programmes\\Docker\\cli-plugins"
+        PATH = "${DOCKER_PATH}:${PATH}"
+       
+        NODEJS_PATH = "C:\\ProgramData\\Microsoft\\Windows\\Start Menu\\Programs\\Node.js"
+        SONAR_SCANNER_HOME = "C:\\Users\\MSAR\\Desktop\\sonar-scanner-5.0.1.3006-windows"
     }
 
     stages {
         stage('Checkout') {
             steps {
-                checkout scm
+                script {
+                    checkout scm
+                }
             }
         }
-
-        stage('Install dependencies') {
+        stage('Install Dependencies and Run Tests') {
             steps {
                 script {
                     bat 'npm install'
-                    bat 'npm install node-pre-gyp'
+                    //bat 'npm test --detectOpenHandles'
                 }
             }
         }
-
-        stage('Build') {
-            steps {
-                bat 'npm run build'
-            }
-        }
-
         stage('SonarQube Analysis') {
             steps {
+                withSonarQubeEnv('sonarquabe') {
+                    bat '"C:\\Users\\MSAR\\Desktop\\sonar-scanner-5.0.1.3006-windows\\bin\\sonar-scanner" -Dsonar.projectKey=PLANIFICATION-SERVICE'
+                }
+            }
+        }
+        stage('Build Docker Image') {
+            steps {
                 script {
-                    withSonarQubeEnv('Sonar') {
-                        bat 'npm run sonarqube'
+                    // Construire l'image Docker avec élévation de privilèges
+                    bat 'docker build -t nourhene112/planification-serv:latest .'
+                }
+            }
+        }
+        stage('Tag Docker Image') {
+            steps {
+                script {
+                    bat "docker tag planification-serv nourhene112/planification-serv:latest"
+                }
+            }
+        }
+        stage('Publish Docker Image') {
+            steps {
+                script {
+                    withCredentials([usernamePassword(credentialsId: 'dockerhub-credentials', usernameVariable: 'DOCKERHUB_USERNAME', passwordVariable: 'DOCKERHUB_PASSWORD')]) {
+                        bat 'docker login'
+                        bat 'docker push nourhene112/planification-serv:latest'
                     }
                 }
             }
-        }
-
-        stage('Build Docker image') {
-            steps {
-                script {
-                    bat 'docker build --no-cache -t feedback:latest -f Dockerfile .'
-                    bat 'docker tag formationfrontend:latest nour0/formationfrontend:latest'
-                }
-            }
-        }
-
-        stage('Deploy Docker image') {
-            steps {
-                script {
-                    withCredentials([string(credentialsId: 'docker-hub-token', variable: 'DOCKER_TOKEN')]) {
-                        docker.withRegistry('https://index.docker.io/v1/', '12') {
-                            bat "docker image push nour0/formationfrontend:latest"
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    post {
-        success {
-            echo 'Build succeeded!'
-        }
-
-        failure {
-            echo 'Build failed!'
         }
     }
 }

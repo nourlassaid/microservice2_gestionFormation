@@ -20,7 +20,7 @@ spec:
         - containerPort: 8333
         env:
         - name: MYSQL_HOST
-          value: mysql
+          value: db  # Ensure this matches the service name
         - name: MYSQL_USER
           value: root
         - name: MYSQL_PASSWORD

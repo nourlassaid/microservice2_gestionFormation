@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: mysql
-        image: mysql1:latest  # Use the custom image name you built
+        image: mysql1:latest
         env:
         - name: MYSQL_ROOT_PASSWORD
           value: "root"
