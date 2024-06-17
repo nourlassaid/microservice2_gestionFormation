@@ -24,15 +24,7 @@ pipeline {
                 }
             }
         }
-   stage('Build Docker image') {
-            steps {
-                script {
-                    // Example with Docker Pipeline plugin
-                    docker.build('formationfrontend:latest', '-f Dockerfile .')
-                    docker.image('formationfrontend:latest').tag("nour0/formationfrontend:latest")
-                }
-            }
-        }
+
         stage('Build') {
             steps {
                 bat 'npm run build'
@@ -52,13 +44,12 @@ pipeline {
         stage('Build Docker image') {
             steps {
                 script {
-                    bat 'docker build --no-cache -t formationfrontend:latest -f Dockerfile .'
-                    bat 'docker tag formationfrontend:latest nour0/formationfrontend:latest'
+                    // Build and tag Docker image
+                    docker.build('formationfrontend:latest', '-f Dockerfile .')
+                    docker.image('formationfrontend:latest').tag("nour0/formationfrontend:latest")
                 }
             }
         }
-
-      
     }
 
     post {
