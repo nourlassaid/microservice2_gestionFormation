@@ -41,17 +41,25 @@ pipeline {
                 }
             }
         }
-
-      stage('Build Docker image') {
-    steps {
-        script {
-            // Build and tag Docker image
-            docker.build('formationfrontend:latest', '-f Dockerfile .')
-            docker.image('formationfrontend:latest').tag('nour0/formationfrontend', 'latest')
+stage('Build Docker Image') {
+            steps {
+                script {
+                    // Build Docker image
+                    bat 'docker build -t nour0/formationfrontend:latest .'
+                }
+            }
         }
-    }
-}
 
+    }
+       stage('Deploy to Kubernetes') {
+            steps {
+                script {
+                    // Apply Kubernetes manifests for deployment and service
+                    bat 'kubectl apply -f formation-deployment.yaml'
+                    bat 'kubectl apply -f formation-service.yaml'
+                }
+            }
+        }
     }
 
     post {
