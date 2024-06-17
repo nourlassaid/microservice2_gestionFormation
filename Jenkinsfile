@@ -2,11 +2,9 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_PATH = "C:\\Programmes\\Docker\\cli-plugins"
-        PATH = "${DOCKER_PATH}:${PATH}"
-       
-        NODEJS_PATH = "C:\\ProgramData\\Microsoft\\Windows\\Start Menu\\Programs\\Node.js"
-        SONAR_SCANNER_HOME = "C:\\Users\\MSAR\\Desktop\\sonar-scanner-5.0.1.3006-windows"
+        DOCKER_PATH = "C:\\Program Files\\Docker\\cli-plugins"
+        PATH = "${DOCKER_PATH};${PATH}"  // Utilisez ';' pour Windows
+        NODEJS_PATH = "C:\\Program Files\\nodejs"  // Path Node.js correct
     }
 
     stages {
@@ -17,45 +15,48 @@ pipeline {
                 }
             }
         }
-        stage('Install Dependencies and Run Tests') {
+        stage('Install dependencies') {
             steps {
                 script {
                     bat 'npm install'
-                    //bat 'npm test --detectOpenHandles'
+                    bat 'npm install node-pre-gyp'
                 }
             }
         }
+
+        stage('Build') {
+            steps {
+                bat 'npm run build'
+            }
+        }
+
         stage('SonarQube Analysis') {
             steps {
-                withSonarQubeEnv('sonarquabe') {
-                    bat '"C:\\Users\\MSAR\\Desktop\\sonar-scanner-5.0.1.3006-windows\\bin\\sonar-scanner" -Dsonar.projectKey=PLANIFICATION-SERVICE'
-                }
-            }
-        }
-        stage('Build Docker Image') {
-            steps {
                 script {
-                    // Construire l'image Docker avec élévation de privilèges
-                    bat 'docker build -t nourhene112/planification-serv:latest .'
-                }
-            }
-        }
-        stage('Tag Docker Image') {
-            steps {
-                script {
-                    bat "docker tag planification-serv nourhene112/planification-serv:latest"
-                }
-            }
-        }
-        stage('Publish Docker Image') {
-            steps {
-                script {
-                    withCredentials([usernamePassword(credentialsId: 'dockerhub-credentials', usernameVariable: 'DOCKERHUB_USERNAME', passwordVariable: 'DOCKERHUB_PASSWORD')]) {
-                        bat 'docker login'
-                        bat 'docker push nourhene112/planification-serv:latest'
+                    withSonarQubeEnv('SonarQube Test') {
+                        bat 'npm run sonarqube'
                     }
                 }
             }
+        }
+
+        stage('Build Docker image') {
+            steps {
+                script {
+                    bat 'docker build --no-cache -t formationfrontend:latest -f Dockerfile .'
+                    bat 'docker tag formationfrontend:latest nour0/formationfrontend:latest'
+                }
+            }
+        }
+
+      
+    post {
+        success {
+            echo 'Build succeeded!'
+        }
+
+        failure {
+            echo 'Build failed!'
         }
     }
 }
