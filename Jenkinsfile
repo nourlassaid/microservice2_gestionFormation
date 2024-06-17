@@ -24,7 +24,15 @@ pipeline {
                 }
             }
         }
-
+   stage('Build Docker image') {
+            steps {
+                script {
+                    // Example with Docker Pipeline plugin
+                    docker.build('formationfrontend:latest', '-f Dockerfile .')
+                    docker.image('formationfrontend:latest').tag("nour0/formationfrontend:latest")
+                }
+            }
+        }
         stage('Build') {
             steps {
                 bat 'npm run build'
