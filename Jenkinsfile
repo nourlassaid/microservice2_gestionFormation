@@ -49,10 +49,12 @@ pipeline {
             }
         }
 
-         stage('kubernetes Deployment') {
+        stage('Kubernetes Deployment') {
             steps {
                 script {
-                   bat 'kubectl apply -f formation-deployment.yaml' 
+                    withCredentials([file(credentialsId: 'kubeconfig', variable: 'KUBECONFIG')]) {
+                        bat 'kubectl apply -f formation-deployment.yaml --validate=false'
+                    }
                 }
             }
         }
