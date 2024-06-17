@@ -2,9 +2,9 @@ pipeline {
     agent any
 
     environment {
-        NODEJS_HOME = "C:\\Program Files\\nodejs"
         DOCKER_PATH = "C:\\Program Files\\Docker\\cli-plugins"
-        PATH = "${NODEJS_HOME};${DOCKER_PATH};${env.PATH}"
+        PATH = "${DOCKER_PATH};${PATH}"  // Utilisez ';' pour Windows
+        NODEJS_PATH = "C:\\Program Files\\nodejs"  // Path Node.js correct
     }
 
     stages {
@@ -15,6 +15,7 @@ pipeline {
                 }
             }
         }
+
 
         stage('Install dependencies') {
             steps {
@@ -41,15 +42,16 @@ pipeline {
             }
         }
 
-        stage('Build Docker image') {
-            steps {
-                script {
-                    // Build and tag Docker image
-                    docker.build('formationfrontend:latest', '-f Dockerfile .')
-                    docker.image('formationfrontend:latest').tag("nour0/formationfrontend:latest")
-                }
-            }
+      stage('Build Docker image') {
+    steps {
+        script {
+            // Build and tag Docker image
+            docker.build('formationfrontend:latest', '-f Dockerfile .')
+            docker.image('formationfrontend:latest').tag('nour0/formationfrontend', 'latest')
         }
+    }
+}
+
     }
 
     post {
