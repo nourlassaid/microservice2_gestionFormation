@@ -53,7 +53,7 @@ pipeline {
             steps {
                 script {
                     // Exemple d'utilisation d'un fichier kubeconfig sécurisé
-                    withCredentials([file(credentialsId: 'kubeconfig', variable: 'KUBECONFIG_FILE')]) {
+                    withCredentials([file(credentialsId: 'kubeconfig_new', variable: 'KUBECONFIG_FILE')]) {
                         bat '''
                         kubectl --kubeconfig="%KUBECONFIG_FILE%" get namespace formation || kubectl --kubeconfig="%KUBECONFIG_FILE%" create namespace formation
                         kubectl --kubeconfig="%KUBECONFIG_FILE%" apply -f db/configMap.yaml -n formation
