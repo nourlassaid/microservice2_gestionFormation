@@ -3,9 +3,8 @@ pipeline {
 
     environment {
         DOCKER_PATH = "C:\\Program Files\\Docker\\cli-plugins"
-        PATH = "${DOCKER_PATH};${PATH}"  // Utilisation de ';' pour Windows
-        NODEJS_PATH = "C:\\Program Files\\nodejs"  // Chemin correct pour Node.js
-        KUBECONFIG = "C:\\Program Files\\Jenkins\\.kube\\config"
+        NODEJS_PATH = "C:\\Program Files\\nodejs"
+        PATH = "${DOCKER_PATH};${NODEJS_PATH};${env.PATH}"  // Ajout de Docker et Node.js au PATH
     }
 
     stages {
@@ -54,15 +53,15 @@ pipeline {
             steps {
                 script {
                     // Exemple d'utilisation d'un fichier kubeconfig sécurisé
-                    withCredentials([file(credentialsId: 'kubeconfig', variable: 'KUBECONFIG')]) {
+                    withCredentials([file(credentialsId: 'kubeconfig', variable: 'KUBECONFIG_FILE')]) {
                         bat '''
-                        kubectl --kubeconfig="${KUBECONFIG}" get namespace formation || kubectl --kubeconfig="${KUBECONFIG}" create namespace formation
-                        kubectl --kubeconfig="${KUBECONFIG}" apply -f db/configMap.yaml -n formation
-                        kubectl --kubeconfig="${KUBECONFIG}" apply -f db/mysql-deployment.yaml -n formation
-                        kubectl --kubeconfig="${KUBECONFIG}" apply -f db/mysql-service.yaml -n formation
-                        kubectl --kubeconfig="${KUBECONFIG}" apply -f db/persistant.yml -n formation
-                        kubectl --kubeconfig="${KUBECONFIG}" apply -f formation-deployment.yaml -n formation
-                        kubectl --kubeconfig="${KUBECONFIG}" apply -f formation-service.yaml -n formation
+                        kubectl --kubeconfig="%KUBECONFIG_FILE%" get namespace formation || kubectl --kubeconfig="%KUBECONFIG_FILE%" create namespace formation
+                        kubectl --kubeconfig="%KUBECONFIG_FILE%" apply -f db/configMap.yaml -n formation
+                        kubectl --kubeconfig="%KUBECONFIG_FILE%" apply -f db/mysql-deployment.yaml -n formation
+                        kubectl --kubeconfig="%KUBECONFIG_FILE%" apply -f db/mysql-service.yaml -n formation
+                        kubectl --kubeconfig="%KUBECONFIG_FILE%" apply -f db/persistant.yml -n formation
+                        kubectl --kubeconfig="%KUBECONFIG_FILE%" apply -f formation-deployment.yaml -n formation
+                        kubectl --kubeconfig="%KUBECONFIG_FILE%" apply -f formation-service.yaml -n formation
                         '''
                     }
                 }
@@ -74,7 +73,6 @@ pipeline {
         success {
             echo 'Build succeeded!'
         }
-
         failure {
             echo 'Build failed!'
         }
