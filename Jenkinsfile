@@ -20,7 +20,7 @@ pipeline {
             steps {
                 script {
                     bat 'npm install'
-                    bat 'npm install node-pre-gyp'
+                    bat 'npm install @mapbox/node-pre-gyp'  // Utilisation de @mapbox/node-pre-gyp
                 }
             }
         }
