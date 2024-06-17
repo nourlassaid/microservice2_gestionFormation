@@ -49,21 +49,10 @@ pipeline {
             }
         }
 
-        stage('Deploy with kubectl') {
+         stage('kubernetes Deployment') {
             steps {
                 script {
-                    // Exemple d'utilisation d'un fichier kubeconfig sécurisé
-                    withCredentials([file(credentialsId: 'kubeconfig_new', variable: 'KUBECONFIG_FILE')]) {
-                        bat '''
-                        kubectl --kubeconfig="%KUBECONFIG_FILE%" get namespace formation || kubectl --kubeconfig="%KUBECONFIG_FILE%" create namespace formation
-                        kubectl --kubeconfig="%KUBECONFIG_FILE%" apply -f db/configMap.yaml -n formation
-                        kubectl --kubeconfig="%KUBECONFIG_FILE%" apply -f db/mysql-deployment.yaml -n formation
-                        kubectl --kubeconfig="%KUBECONFIG_FILE%" apply -f db/mysql-service.yaml -n formation
-                        kubectl --kubeconfig="%KUBECONFIG_FILE%" apply -f db/persistant.yml -n formation
-                        kubectl --kubeconfig="%KUBECONFIG_FILE%" apply -f formation-deployment.yaml -n formation
-                        kubectl --kubeconfig="%KUBECONFIG_FILE%" apply -f formation-service.yaml -n formation
-                        '''
-                    }
+                   bat 'kubectl apply -f formation-deployment.yaml' 
                 }
             }
         }
