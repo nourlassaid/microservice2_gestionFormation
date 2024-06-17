@@ -8,7 +8,8 @@
     "start": "node app.js",
     "test:e2e": "node test-endpoints.js",
     "build": "echo 'No build step required'",
-    "sonar": "sonar-scanner"
+    "sonar": "sonar-scanner",
+    "sonarqube": "sonar-scanner"
   },
   "keywords": [],
   "author": "",

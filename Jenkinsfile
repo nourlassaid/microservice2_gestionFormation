@@ -34,9 +34,8 @@ pipeline {
         stage('SonarQube Analysis') {
             steps {
                 script {
-                    withSonarQubeEnv('SonarQube Test') {
-                        bat 'npm run sonarqube'
-                    }
+                    // Assurez-vous que votre script SonarQube est correct
+                    bat 'npm run sonarqube'
                 }
             }
         }
@@ -53,8 +52,8 @@ pipeline {
         stage('Deploy Docker image') {
             steps {
                 script {
-                    withCredentials([string(credentialsId: 'docker-hub-token', variable: 'DOCKER_TOKEN')]) {
-                        bat "docker login -u <your-docker-username> -p ${DOCKER_TOKEN}"
+                    withCredentials([string(credentialsId: 'nourlassaid', variable: 'DOCKER_TOKEN')]) {
+                        bat "docker login -u <nour0> -p ${DOCKER_TOKEN}"
                         bat "docker push nour0/formationfrontend:latest"
                     }
                 }
