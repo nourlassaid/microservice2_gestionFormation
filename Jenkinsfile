@@ -3,8 +3,8 @@ pipeline {
 
     environment {
         DOCKER_PATH = "C:\\Program Files\\Docker\\cli-plugins"
-        PATH = "${DOCKER_PATH};${PATH}"  // Utilisez ';' pour Windows
-        NODEJS_PATH = "C:\\Program Files\\nodejs"  // Path Node.js correct
+        PATH = "${DOCKER_PATH};${PATH}"  // Utilisation de ';' pour Windows
+        NODEJS_PATH = "C:\\Program Files\\nodejs"  // Chemin correct pour Node.js
     }
 
     stages {
@@ -15,7 +15,6 @@ pipeline {
                 }
             }
         }
-
 
         stage('Install dependencies') {
             steps {
@@ -41,7 +40,8 @@ pipeline {
                 }
             }
         }
-stage('Build Docker Image') {
+
+        stage('Build Docker Image') {
             steps {
                 script {
                     // Build Docker image
@@ -50,8 +50,7 @@ stage('Build Docker Image') {
             }
         }
 
-    }
-       stage('Deploy to Kubernetes') {
+        stage('Deploy to Kubernetes') {
             steps {
                 script {
                     // Apply Kubernetes manifests for deployment and service
