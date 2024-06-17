@@ -60,18 +60,7 @@ pipeline {
             }
         }
     }
-     stage('Deploy to Kubernetes') {
-            steps {
-                script {
-                    withCredentials([kubernetesServiceAccount(credentialsId: '13', caCertificate: '', namespace: 'formation')]) {
-                        // Apply Kubernetes manifests for deployment and service
-                        bat 'kubectl apply -f formation-deployment.yaml'
-                        bat 'kubectl apply -f formation-service.yaml'
-                    }
-                }
-            }
-        }
-    }
+    
 
     post {
         success {
