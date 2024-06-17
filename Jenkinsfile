@@ -2,9 +2,9 @@ pipeline {
     agent any
 
     environment {
+        NODEJS_HOME = "C:\\Program Files\\nodejs"
         DOCKER_PATH = "C:\\Program Files\\Docker\\cli-plugins"
-        PATH = "${DOCKER_PATH};${PATH}"  // Utilisez ';' pour Windows
-        NODEJS_PATH = "C:\\Program Files\\nodejs"  // Path Node.js correct
+        PATH = "${NODEJS_HOME};${DOCKER_PATH};${env.PATH}"
     }
 
     stages {
@@ -15,6 +15,7 @@ pipeline {
                 }
             }
         }
+
         stage('Install dependencies') {
             steps {
                 script {
@@ -49,7 +50,18 @@ pipeline {
             }
         }
 
-      
+        stage('Deploy Docker image') {
+            steps {
+                script {
+                    withCredentials([string(credentialsId: 'docker-hub-token', variable: 'DOCKER_TOKEN')]) {
+                        bat "docker login -u <your-docker-username> -p ${DOCKER_TOKEN}"
+                        bat "docker push nour0/formationfrontend:latest"
+                    }
+                }
+            }
+        }
+    }
+
     post {
         success {
             echo 'Build succeeded!'
