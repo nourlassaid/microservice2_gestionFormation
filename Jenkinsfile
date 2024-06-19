@@ -4,6 +4,7 @@ pipeline {
     environment {
         DOCKER_PATH = "C:\\Program Files\\Docker\\cli-plugins"
         NODEJS_PATH = "C:\\Program Files\\nodejs"
+        CHROME_BIN = '/usr/bin/google-chrome'
         PATH = "${DOCKER_PATH};${NODEJS_PATH};${env.PATH}"
     }
 
@@ -49,12 +50,21 @@ pipeline {
             }
         }
 
+        stage('Deploy Docker image') {
+            steps {
+                script {
+                    withCredentials([string(credentialsId: 'dockerhub', variable: 'DOCKERHUB_CREDENTIALS')]) {
+                        bat "docker login -u nourlassaid -p ${DOCKERHUB_CREDENTIALS}"
+                        bat "docker push nour0/formationfrontend:latest"
+                    }
+                }
+            }
+        }
+
         stage('Kubernetes Deployment') {
             steps {
                 script {
-                    withCredentials([file(credentialsId: 'kubeconfig', variable: 'KUBECONFIG')]) {
-                        bat 'kubectl apply -f formation-deployment.yaml --validate=false'
-                    }
+                    bat 'kubectl apply -f formation-deployment.yaml'
                 }
             }
         }
