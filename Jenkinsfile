@@ -43,19 +43,19 @@ pipeline {
             }
         }
 
-       stage('Kubernetes Deployment') {
-    steps {
-        script {
-            bat 'kubectl version'
-            bat 'kubectl config view'
-            bat 'kubectl get pods --all-namespaces'
-            bat 'kubectl apply -f formation-deployment.yaml'
-            bat 'kubectl apply -f formation-service.yaml'
-        }
-    }
-}
+      // stage('Kubernetes Deployment') {
+    //steps {
+        //script {
+         //   bat 'kubectl version'
+          //  bat 'kubectl config view'
+          //  bat 'kubectl get pods --all-namespaces'
+         //   bat 'kubectl apply -f formation-deployment.yaml'
+          //  bat 'kubectl apply -f formation-service.yaml'
+        //}
+   // }
+//}
 
-    }
+    //}
 
     post {
         success {
@@ -65,4 +65,5 @@ pipeline {
             echo 'Build failed!'
         }
     }
+}
 }
