@@ -1,58 +1,63 @@
 pipeline {
     agent any
-    
+
     environment {
-        DOCKERHUB_CREDENTIALS = credentials('dockerhub-credentials')
-        SONARQUBE_ENV = 'SonarQube Test'
+        DOCKERHUB_CREDENTIALS = credentials('dockerhub-token')
     }
-    
+
     stages {
-        stage('Checkout SCM') {
+        stage('Checkout') {
             steps {
-                git url: 'https://github.com/nourlassaid/microservice2_gestionFormation.git', branch: 'main', credentialsId: 'nourlassaid-token'
+                checkout scm
             }
         }
-        
         stage('Install dependencies') {
             steps {
                 bat 'npm install'
                 bat 'npm install @mapbox/node-pre-gyp'
             }
         }
-        
-        stage('SonarQube Analysis') {
-            environment {
-                scannerHome = tool 'SonarQube Scanner'
+        stage('Build') {
+            steps {
+                bat 'npm run build'
             }
+        }
+        stage('SonarQube Analysis') {
             steps {
                 withSonarQubeEnv('SonarQube Test') {
-                    bat "${scannerHome}/bin/sonar-scanner"
+                    bat 'npm run sonarqube'
                 }
             }
         }
-        
         stage('Build Docker Image') {
             steps {
                 bat 'docker build -t nour0/formationfrontend:latest .'
             }
         }
-        
         stage('Deploy Docker image') {
             steps {
-                withCredentials([string(credentialsId: 'DOCKERHUB_TOKEN', variable: 'DOCKERHUB_TOKEN')]) {
+                withCredentials([string(credentialsId: 'dockerhub-token', variable: 'DOCKERHUB_TOKEN')]) {
                     bat 'docker login -u nour0 -p %DOCKERHUB_TOKEN%'
                     bat 'docker push nour0/formationfrontend:latest'
                 }
             }
         }
-        
+
         stage('Kubernetes Deployment') {
             steps {
                 script {
-                    def k8s = "formation-deployment.yaml"
-                    bat "kubectl apply -f ${k8s}"
+                    bat 'kubectl apply -f formation-deployment.yaml'
                 }
             }
+        }
+    }
+
+    post {
+        success {
+            echo 'Build succeeded!'
+        }
+        failure {
+            echo 'Build failed!'
         }
     }
 }
