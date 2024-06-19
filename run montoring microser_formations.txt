@@ -1,0 +1,10 @@
+http://localhost:3100/metrics
+docker run --rm -p 3080:3000 -e GF_AUTH_DISABLE_LOGIN_FORM=true -e GF_AUTH_ANONYMOUS_ENABLED=true -e GF_AUTH_ANONYMOUS_ORG_ROLE=Admin -v C:\Users\MSAR\micro3_Formations\grafana\provisioning/datasources/datasources.yml grafana/grafana:latest
+
+
+
+
+
+
+
+docker run --rm -p 9090:9090 -v C:\Users\MSAR\micro3_Formations\prometheus.yml:/etc/prometheus/prometheus.yml prom/prometheus:latest

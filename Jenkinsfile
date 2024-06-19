@@ -4,7 +4,7 @@ pipeline {
     environment {
         DOCKER_PATH = "C:\\Program Files\\Docker\\cli-plugins"
         NODEJS_PATH = "C:\\Program Files\\nodejs"
-        PATH = "${DOCKER_PATH};${NODEJS_PATH};${env.PATH}"  // Ajout de Docker et Node.js au PATH
+        PATH = "${DOCKER_PATH};${NODEJS_PATH};${env.PATH}"
     }
 
     stages {
