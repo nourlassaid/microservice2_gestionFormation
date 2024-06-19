@@ -47,6 +47,7 @@ pipeline {
             steps {
                 script {
                     bat 'kubectl apply -f formation-deployment.yaml'
+                    bat 'kubectl apply -f formation-service.yaml'
                 }
             }
         }
